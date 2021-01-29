@@ -17,9 +17,20 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+    - name: Setup JFrog CLI
+      uses: jfrog/setup-jfrog-cli@v1.1.0
+      env:
+        JF_ARTIFACTORY_1: ${{ secrets.JF_ARTIFACTORY_SECRET_1 }}
+    - name: Ping
+      run: jfrog rt ping
+    - name: jfrog Configure Resolver
+      run: jfrog rt nuget-config --repo-resolve "nuget-dev" --server-id-resolve "riteam"
+    - name: jfrog dotnet restore
+      run: jfrog rt dotnet restore
+      
+    #- name: Restore dependencies
+    #  run: dotnet restore
+    #- name: Build
+    #  run: dotnet build --no-restore
+    #- name: Test
+    #  run: dotnet test --no-build --verbosity normal
