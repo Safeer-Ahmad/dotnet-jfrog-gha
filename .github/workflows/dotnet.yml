@@ -24,13 +24,22 @@ jobs:
     - name: Ping
       run: jfrog rt ping
     - name: jfrog Configure Resolver
-      run: jfrog rt nuget-config --repo-resolve "nuget-dev" --server-id-resolve "riteam"
+      run: jfrog rt dotnet-config --repo-resolve "nuget-dev" --server-id-resolve "${{ secrets.JFROG_SERVER_NAME }}"
     - name: jfrog dotnet restore
-      run: jfrog rt dotnet restore
-      
-    #- name: Restore dependencies
-    #  run: dotnet restore
-    #- name: Build
-    #  run: dotnet build --no-restore
-    #- name: Test
-    #  run: dotnet test --no-build --verbosity normal
+      # adding build-name and build-number adds deps info to the build-info object, which can then be published with jfrog rt build-publish
+      # the build name would be static, but the build-number could be the tag or some other unique identifier
+      run: jfrog rt dotnet restore --build-name=my-build-name --build-number=1
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+    #- name: Upload artifact
+    #  run: jfrog rt u path-to-binary/ nuget-dev/art-name/
+    #- name: Publish build.info
+    #  run: |
+        # Collect environment variables for the build
+        # jfrog rt bce
+        # Collect VCS details from git and add them to the build
+        # jfrog rt bag
+        # Publish build info
+        # jfrog rt bp
